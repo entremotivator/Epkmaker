@@ -2,8 +2,8 @@ import streamlit as st
 from fpdf import FPDF
 import json
 
-# Helper function to generate EPK PDF
-def generate_epk_pdf(data):
+# Helper function to generate Sports EPK PDF
+def generate_sports_epk_pdf(data):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -15,32 +15,32 @@ def generate_epk_pdf(data):
 
     # Summary
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Film Summary:", ln=True, align="L")
+    pdf.cell(200, 10, txt="Event/Team Summary:", ln=True, align="L")
     pdf.multi_cell(0, 10, data["summary"])
     pdf.ln(5)
 
-    # Director's Statement
-    pdf.cell(200, 10, txt="Director's Statement:", ln=True, align="L")
-    pdf.multi_cell(0, 10, data["director_statement"])
+    # Coach/Athlete Statement
+    pdf.cell(200, 10, txt="Coach/Athlete Statement:", ln=True, align="L")
+    pdf.multi_cell(0, 10, data["statement"])
     pdf.ln(5)
 
-    # Film Details
-    pdf.cell(200, 10, txt="Film Details:", ln=True, align="L")
+    # Event/Team Details
+    pdf.cell(200, 10, txt="Event/Team Details:", ln=True, align="L")
     pdf.multi_cell(0, 10, f"Budget: {data['budget']}")
     pdf.multi_cell(0, 10, f"Location: {data['location']}")
-    pdf.multi_cell(0, 10, f"Runtime: {data['runtime']}")
-    pdf.multi_cell(0, 10, f"Production Year: {data['year']}")
+    pdf.multi_cell(0, 10, f"Event Date: {data['event_date']}")
+    pdf.multi_cell(0, 10, f"Year Founded: {data['year_founded']}")
     pdf.ln(5)
 
-    # Cast and Crew
-    pdf.cell(200, 10, txt="Cast and Crew:", ln=True, align="L")
-    for role, name in data["cast_and_crew"].items():
+    # Team and Roster
+    pdf.cell(200, 10, txt="Team Roster:", ln=True, align="L")
+    for role, name in data["team_roster"].items():
         pdf.multi_cell(0, 10, f"{role}: {name}")
     pdf.ln(5)
 
-    # Awards
-    pdf.cell(200, 10, txt="Awards and Nominations:", ln=True, align="L")
-    pdf.multi_cell(0, 10, data["awards"])
+    # Achievements
+    pdf.cell(200, 10, txt="Achievements and Awards:", ln=True, align="L")
+    pdf.multi_cell(0, 10, data["achievements"])
     pdf.ln(5)
 
     # Contact Information
@@ -57,43 +57,43 @@ def generate_epk_pdf(data):
     pdf.ln(5)
 
     # Save PDF
-    pdf_file = "EPK.pdf"
+    pdf_file = "Sports_EPK.pdf"
     pdf.output(pdf_file)
     return pdf_file
 
 # Page: Home
 def home_page():
-    st.title("Film Toolkit")
-    st.write("Welcome to the Film Toolkit app! This app includes multiple features to help filmmakers and creative professionals:")
+    st.title("Sports EPK Toolkit")
+    st.write("Welcome to the Sports EPK Toolkit! This app includes multiple features to help teams, athletes, and event organizers:")
     st.markdown("""
-    - **Electronic Press Kit (EPK) Generator**: Create a professional press kit for your film.
-    - **Movie Script Generator**: Generate detailed movie scripts with structured scenes.
-    - **Character Development**: Build deep and realistic characters with extensive details.
-    - **Story Outline Generator**: Develop a comprehensive outline for your story.
+    - **Sports EPK Generator**: Create a professional press kit for your team, athlete, or event.
+    - **Game Plan Generator**: Develop detailed game plans with strategies.
+    - **Player Profile Development**: Create detailed profiles for players with key statistics and traits.
+    - **Event Overview Generator**: Generate a comprehensive outline for sports events.
     """)
 
-# Page: EPK Generator
-def epk_generator_page():
-    st.title("Electronic Press Kit (EPK) Generator")
-    st.write("Create a professional Film EPK with detailed information about your film.")
+# Page: Sports EPK Generator
+def sports_epk_generator_page():
+    st.title("Sports EPK Generator")
+    st.write("Create a professional Sports EPK with detailed information about your team, athlete, or event.")
 
     # Input fields
-    title = st.text_input("Film Title", "")
-    summary = st.text_area("Film Summary", "")
-    director_statement = st.text_area("Director's Statement", "")
-    budget = st.text_input("Film Budget (e.g., $1M, $500K)", "")
-    location = st.text_input("Shooting Location(s)", "")
-    runtime = st.text_input("Runtime (e.g., 120 minutes)", "")
-    year = st.text_input("Production Year", "")
+    title = st.text_input("Event/Team Name", "")
+    summary = st.text_area("Event/Team Summary", "")
+    statement = st.text_area("Coach/Athlete Statement", "")
+    budget = st.text_input("Event Budget (e.g., $50K, $1M)", "")
+    location = st.text_input("Location(s)", "")
+    event_date = st.text_input("Event Date", "")
+    year_founded = st.text_input("Year Founded", "")
 
-    # Cast and Crew
-    st.subheader("Cast and Crew")
-    cast_and_crew = {}
-    for role in ["Director", "Lead Actor", "Producer", "Cinematographer", "Costume Designer", "Editor"]:
-        cast_and_crew[role] = st.text_input(role)
+    # Team Roster
+    st.subheader("Team Roster")
+    team_roster = {}
+    for role in ["Coach", "Captain", "Goalkeeper", "Forward", "Defender", "Midfielder"]:
+        team_roster[role] = st.text_input(role)
 
-    # Awards and Nominations
-    awards = st.text_area("List Awards or Festivals (if any)", "")
+    # Achievements
+    achievements = st.text_area("List Achievements and Awards (if any)", "")
 
     # Contact Details
     st.subheader("Contact Information")
@@ -107,79 +107,79 @@ def epk_generator_page():
     links_list = [link.strip() for link in links.split(",")]
 
     # Generate EPK
-    if st.button("Generate EPK"):
+    if st.button("Generate Sports EPK"):
         data = {
             "title": title,
             "summary": summary,
-            "director_statement": director_statement,
+            "statement": statement,
             "budget": budget,
             "location": location,
-            "runtime": runtime,
-            "year": year,
-            "cast_and_crew": cast_and_crew,
-            "awards": awards,
+            "event_date": event_date,
+            "year_founded": year_founded,
+            "team_roster": team_roster,
+            "achievements": achievements,
             "contact_name": contact_name,
             "contact_email": contact_email,
             "contact_phone": contact_phone,
             "links": links_list
         }
-        pdf_file = generate_epk_pdf(data)
-        st.success("EPK generated successfully!")
+        pdf_file = generate_sports_epk_pdf(data)
+        st.success("Sports EPK generated successfully!")
         with open(pdf_file, "rb") as f:
-            st.download_button("Download EPK PDF", f, file_name="Film_EPK.pdf")
+            st.download_button("Download Sports EPK PDF", f, file_name="Sports_EPK.pdf")
 
-# Page: Movie Script Generator
-def script_generator_page():
-    st.title("Movie Script Generator")
-    st.write("Generate a detailed movie script with structured scenes and dialogue.")
+# Page: Game Plan Generator
+def game_plan_generator_page():
+    st.title("Game Plan Generator")
+    st.write("Develop a detailed game plan with strategies and goals.")
 
-    title = st.text_input("Script Title", "")
-    act1 = st.text_area("Act 1: Setup", "")
-    act2 = st.text_area("Act 2: Confrontation", "")
-    act3 = st.text_area("Act 3: Resolution", "")
-    st.button("Generate Script")
+    team_name = st.text_input("Team Name", "")
+    strategy = st.text_area("Overall Strategy", "")
+    goals = st.text_area("Game Goals", "")
+    challenges = st.text_area("Anticipated Challenges", "")
+    st.button("Generate Game Plan")
 
-# Page: Character Development
-def character_development_page():
-    st.title("Character Development")
-    st.write("Create detailed character profiles for your film.")
+# Page: Player Profile Development
+def player_profile_page():
+    st.title("Player Profile Development")
+    st.write("Create detailed profiles for players with statistics and traits.")
 
-    name = st.text_input("Character Name", "")
-    role = st.text_input("Role in Story", "")
-    backstory = st.text_area("Backstory", "")
-    quirks = st.text_area("Quirks and Habits", "")
-    st.button("Save Character")
+    name = st.text_input("Player Name", "")
+    position = st.text_input("Position", "")
+    stats = st.text_area("Player Statistics (e.g., goals, assists, saves)", "")
+    traits = st.text_area("Player Traits and Strengths", "")
+    st.button("Save Player Profile")
 
-# Page: Story Outline Generator
-def story_outline_page():
-    st.title("Story Outline Generator")
-    st.write("Develop a detailed story outline for your film.")
+# Page: Event Overview Generator
+def event_overview_page():
+    st.title("Event Overview Generator")
+    st.write("Generate a comprehensive overview for your sports event.")
 
-    theme = st.text_input("Story Theme", "")
-    tone = st.text_input("Tone and Style", "")
-    conflict = st.text_area("Key Conflict", "")
-    resolution = st.text_area("Resolution", "")
-    st.button("Generate Outline")
+    event_name = st.text_input("Event Name", "")
+    theme = st.text_input("Event Theme", "")
+    schedule = st.text_area("Event Schedule", "")
+    expected_audience = st.text_input("Expected Audience (e.g., 500 attendees)", "")
+    sponsors = st.text_area("Sponsors and Partners", "")
+    st.button("Generate Event Overview")
 
 # Main app
 def main():
-    st.sidebar.title("Film Toolkit Navigation")
+    st.sidebar.title("Sports EPK Toolkit Navigation")
     page = st.sidebar.selectbox(
         "Go to",
-        ["Home", "EPK Generator", "Movie Script Generator", "Character Development", "Story Outline Generator"]
+        ["Home", "Sports EPK Generator", "Game Plan Generator", "Player Profile Development", "Event Overview Generator"]
     )
 
     if page == "Home":
         home_page()
-    elif page == "EPK Generator":
-        epk_generator_page()
-    elif page == "Movie Script Generator":
-        script_generator_page()
-    elif page == "Character Development":
-        character_development_page()
-    elif page == "Story Outline Generator":
-        story_outline_page()
+    elif page == "Sports EPK Generator":
+        sports_epk_generator_page()
+    elif page == "Game Plan Generator":
+        game_plan_generator_page()
+    elif page == "Player Profile Development":
+        player_profile_page()
+    elif page == "Event Overview Generator":
+        event_overview_page()
 
 if __name__ == "__main__":
     main()
-
