@@ -1,78 +1,78 @@
 import streamlit as st
 from fpdf import FPDF
-import os
+import json
 
-# Function to generate PDF for EPK
+# Helper function to generate EPK PDF
 def generate_epk_pdf(data):
     pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
+    pdf.set_font("Arial", size=12)
 
     # Title
-    pdf.set_font("Arial", size=20, style="B")
-    pdf.cell(200, 10, txt="Film Electronic Press Kit", ln=True, align='C')
+    pdf.set_font("Arial", style="B", size=16)
+    pdf.cell(200, 10, txt=data["title"], ln=True, align="C")
     pdf.ln(10)
 
-    # Film/Company Title
-    pdf.set_font("Arial", size=16, style="B")
-    pdf.cell(200, 10, txt=f"Title: {data['title']}", ln=True)
-    pdf.ln(5)
-
-    # Film Summary
-    pdf.set_font("Arial", size=14, style="B")
-    pdf.cell(200, 10, txt="Film Summary", ln=True)
+    # Summary
     pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, data['summary'])
+    pdf.cell(200, 10, txt="Film Summary:", ln=True, align="L")
+    pdf.multi_cell(0, 10, data["summary"])
     pdf.ln(5)
 
     # Director's Statement
-    pdf.set_font("Arial", size=14, style="B")
-    pdf.cell(200, 10, txt="Director's Statement", ln=True)
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, data['director_statement'])
+    pdf.cell(200, 10, txt="Director's Statement:", ln=True, align="L")
+    pdf.multi_cell(0, 10, data["director_statement"])
+    pdf.ln(5)
+
+    # Film Details
+    pdf.cell(200, 10, txt="Film Details:", ln=True, align="L")
+    pdf.multi_cell(0, 10, f"Budget: {data['budget']}")
+    pdf.multi_cell(0, 10, f"Location: {data['location']}")
+    pdf.multi_cell(0, 10, f"Runtime: {data['runtime']}")
+    pdf.multi_cell(0, 10, f"Production Year: {data['year']}")
     pdf.ln(5)
 
     # Cast and Crew
-    pdf.set_font("Arial", size=14, style="B")
-    pdf.cell(200, 10, txt="Cast and Crew", ln=True)
-    pdf.set_font("Arial", size=12)
-    for role, name in data['cast_and_crew'].items():
-        pdf.cell(0, 10, txt=f"{role}: {name}", ln=True)
+    pdf.cell(200, 10, txt="Cast and Crew:", ln=True, align="L")
+    for role, name in data["cast_and_crew"].items():
+        pdf.multi_cell(0, 10, f"{role}: {name}")
+    pdf.ln(5)
+
+    # Awards
+    pdf.cell(200, 10, txt="Awards and Nominations:", ln=True, align="L")
+    pdf.multi_cell(0, 10, data["awards"])
     pdf.ln(5)
 
     # Contact Information
-    pdf.set_font("Arial", size=14, style="B")
-    pdf.cell(200, 10, txt="Contact Information", ln=True)
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, f"Name: {data['contact_name']}\nEmail: {data['contact_email']}\nPhone: {data['contact_phone']}")
+    pdf.cell(200, 10, txt="Contact Information:", ln=True, align="L")
+    pdf.multi_cell(0, 10, f"Name: {data['contact_name']}")
+    pdf.multi_cell(0, 10, f"Email: {data['contact_email']}")
+    pdf.multi_cell(0, 10, f"Phone: {data['contact_phone']}")
     pdf.ln(5)
 
-    # Links (Outbound Links or Video Embeds)
-    pdf.set_font("Arial", size=14, style="B")
-    pdf.cell(200, 10, txt="Outbound Links", ln=True)
-    pdf.set_font("Arial", size=12)
-    for link in data['links']:
-        pdf.cell(0, 10, txt=link, ln=True, link=link)
+    # Links
+    pdf.cell(200, 10, txt="Relevant Links:", ln=True, align="L")
+    for link in data["links"]:
+        pdf.multi_cell(0, 10, link)
     pdf.ln(5)
 
-    # Save the PDF
-    pdf_file = "Film_EPK.pdf"
+    # Save PDF
+    pdf_file = "EPK.pdf"
     pdf.output(pdf_file)
     return pdf_file
 
-
-# App Pages
+# Page: Home
 def home_page():
-    st.title("Welcome to the Film Project Toolkit!")
+    st.title("Film Toolkit")
+    st.write("Welcome to the Film Toolkit app! This app includes multiple features to help filmmakers and creative professionals:")
     st.markdown("""
-    This application helps filmmakers and creatives generate essential materials for their projects. Here's what you can do:
-    
-    - **Electronic Press Kit Generator**: Create detailed EPKs for your film.
-    - **Movie Script Generator**: Develop comprehensive movie scripts.
-    - **Character Development**: Create and manage detailed character profiles.
-    - **Story Outline Generator**: Build structured outlines for your story.
+    - **Electronic Press Kit (EPK) Generator**: Create a professional press kit for your film.
+    - **Movie Script Generator**: Generate detailed movie scripts with structured scenes.
+    - **Character Development**: Build deep and realistic characters with extensive details.
+    - **Story Outline Generator**: Develop a comprehensive outline for your story.
     """)
 
+# Page: EPK Generator
 def epk_generator_page():
     st.title("Electronic Press Kit (EPK) Generator")
     st.write("Create a professional Film EPK with detailed information about your film.")
@@ -81,12 +81,19 @@ def epk_generator_page():
     title = st.text_input("Film Title", "")
     summary = st.text_area("Film Summary", "")
     director_statement = st.text_area("Director's Statement", "")
+    budget = st.text_input("Film Budget (e.g., $1M, $500K)", "")
+    location = st.text_input("Shooting Location(s)", "")
+    runtime = st.text_input("Runtime (e.g., 120 minutes)", "")
+    year = st.text_input("Production Year", "")
 
     # Cast and Crew
     st.subheader("Cast and Crew")
     cast_and_crew = {}
-    for role in ["Director", "Lead Actor", "Producer", "Cinematographer"]:
+    for role in ["Director", "Lead Actor", "Producer", "Cinematographer", "Costume Designer", "Editor"]:
         cast_and_crew[role] = st.text_input(role)
+
+    # Awards and Nominations
+    awards = st.text_area("List Awards or Festivals (if any)", "")
 
     # Contact Details
     st.subheader("Contact Information")
@@ -105,7 +112,12 @@ def epk_generator_page():
             "title": title,
             "summary": summary,
             "director_statement": director_statement,
+            "budget": budget,
+            "location": location,
+            "runtime": runtime,
+            "year": year,
             "cast_and_crew": cast_and_crew,
+            "awards": awards,
             "contact_name": contact_name,
             "contact_email": contact_email,
             "contact_phone": contact_phone,
@@ -116,65 +128,57 @@ def epk_generator_page():
         with open(pdf_file, "rb") as f:
             st.download_button("Download EPK PDF", f, file_name="Film_EPK.pdf")
 
-def movie_script_generator_page():
+# Page: Movie Script Generator
+def script_generator_page():
     st.title("Movie Script Generator")
-    st.write("Develop a detailed movie script based on your ideas.")
-    
-    title = st.text_input("Script Title", "")
-    genre = st.selectbox("Genre", ["Drama", "Comedy", "Thriller", "Action", "Sci-Fi", "Horror"])
-    storyline = st.text_area("Storyline", "Enter your main storyline here...")
-    characters = st.text_area("Main Characters", "List your main characters here...")
-    
-    if st.button("Generate Script"):
-        st.write("**Title:**", title)
-        st.write("**Genre:**", genre)
-        st.write("**Storyline:**", storyline)
-        st.write("**Characters:**", characters)
+    st.write("Generate a detailed movie script with structured scenes and dialogue.")
 
+    title = st.text_input("Script Title", "")
+    act1 = st.text_area("Act 1: Setup", "")
+    act2 = st.text_area("Act 2: Confrontation", "")
+    act3 = st.text_area("Act 3: Resolution", "")
+    st.button("Generate Script")
+
+# Page: Character Development
 def character_development_page():
     st.title("Character Development")
-    st.write("Create detailed profiles for your characters.")
-    
-    name = st.text_input("Character Name", "")
-    age = st.number_input("Age", min_value=0, step=1)
-    role = st.text_input("Role in Story", "")
-    backstory = st.text_area("Backstory", "Enter character backstory...")
-    personality = st.text_area("Personality Traits", "List personality traits here...")
-    
-    if st.button("Generate Character Profile"):
-        st.write("**Name:**", name)
-        st.write("**Age:**", age)
-        st.write("**Role:**", role)
-        st.write("**Backstory:**", backstory)
-        st.write("**Personality Traits:**", personality)
+    st.write("Create detailed character profiles for your film.")
 
+    name = st.text_input("Character Name", "")
+    role = st.text_input("Role in Story", "")
+    backstory = st.text_area("Backstory", "")
+    quirks = st.text_area("Quirks and Habits", "")
+    st.button("Save Character")
+
+# Page: Story Outline Generator
 def story_outline_page():
     st.title("Story Outline Generator")
-    st.write("Create a structured outline for your story.")
-    
-    title = st.text_input("Story Title", "")
-    scenes = st.text_area("Scenes", "List scenes, separated by commas...")
-    theme = st.text_input("Theme", "Enter the main theme of your story...")
-    
-    if st.button("Generate Outline"):
-        st.write("**Title:**", title)
-        st.write("**Scenes:**")
-        for scene in scenes.split(","):
-            st.write("-", scene.strip())
-        st.write("**Theme:**", theme)
+    st.write("Develop a detailed story outline for your film.")
 
+    theme = st.text_input("Story Theme", "")
+    tone = st.text_input("Tone and Style", "")
+    conflict = st.text_area("Key Conflict", "")
+    resolution = st.text_area("Resolution", "")
+    st.button("Generate Outline")
 
-# Navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "EPK Generator", "Movie Script Generator", "Character Development", "Story Outline Generator"])
+# Main app
+def main():
+    st.sidebar.title("Film Toolkit Navigation")
+    page = st.sidebar.selectbox(
+        "Go to",
+        ["Home", "EPK Generator", "Movie Script Generator", "Character Development", "Story Outline Generator"]
+    )
 
-if page == "Home":
-    home_page()
-elif page == "EPK Generator":
-    epk_generator_page()
-elif page == "Movie Script Generator":
-    movie_script_generator_page()
-elif page == "Character Development":
-    character_development_page()
-elif page == "Story Outline Generator":
-    story_outline_page()
+    if page == "Home":
+        home_page()
+    elif page == "EPK Generator":
+        epk_generator_page()
+    elif page == "Movie Script Generator":
+        script_generator_page()
+    elif page == "Character Development":
+        character_development_page()
+    elif page == "Story Outline Generator":
+        story_outline_page()
+
+if __name__ == "__main__":
+    main()
